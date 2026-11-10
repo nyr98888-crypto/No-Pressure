@@ -47,13 +47,13 @@ export default async function Image({
         >
           <span
             style={{
-              fontSize: "36px",
+              fontSize: "34px",
               fontWeight: 900,
               color: "#ef4444",
               letterSpacing: "2px",
             }}
           >
-            BET YOU LOSE.
+            BET YOU LOSE: PAY UP
           </span>
           <span style={{ fontSize: "28px", fontWeight: 800, color: "#eab308" }}>
             PAY UP.

@@ -7,24 +7,37 @@ export async function GET(req: Request) {
     await ensureSchema();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+    const check = searchParams.get("check");
 
-    if (!id) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    if (check === "1" || check === "true") {
+      await db.execute("SELECT 1");
+      return NextResponse.json({ ok: true, connected: true });
+    }
+
+    if (id) {
+      const result = await db.execute({
+        sql: "SELECT * FROM bets WHERE id = ?",
+        args: [id],
+      });
+
+      const bet = result.rows[0];
+      if (!bet) {
+        return NextResponse.json({ error: "Bet not found" }, { status: 404 });
+      }
+
+      return NextResponse.json(bet);
     }
 
     const result = await db.execute({
-      sql: "SELECT * FROM bets WHERE id = ?",
-      args: [id],
+      sql: "SELECT * FROM bets ORDER BY created_at DESC LIMIT 20",
     });
 
-    const bet = result.rows[0];
-    if (!bet) {
-      return NextResponse.json({ error: "Bet not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(bet);
+    return NextResponse.json({ bets: result.rows });
   } catch {
-    return NextResponse.json({ error: "Failed to fetch bet" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch bets", connected: false },
+      { status: 500 }
+    );
   }
 }
 

@@ -59,7 +59,7 @@ export default function BetActions({ bet }: BetActionsProps) {
           onClick={() => patch({ action: "accept", opponentName })}
           className="w-full bg-red-600 py-4 text-lg font-black uppercase tracking-wider text-black transition-transform hover:bg-red-700 active:translate-y-1 disabled:opacity-50"
         >
-          {loading ? "Locking..." : "Accept Bet (Prove Them Wrong)"}
+          {loading ? "Locking..." : "Accept Challenge (Prove Them Wrong)"}
         </button>
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
       </div>

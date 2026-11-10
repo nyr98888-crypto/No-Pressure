@@ -59,7 +59,7 @@ export default function Home() {
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
               <label className="mb-1 block text-xs uppercase tracking-wider text-zinc-400">
-                Your Name
+                Creator Name
               </label>
               <input
                 required
@@ -72,7 +72,7 @@ export default function Home() {
 
             <div>
               <label className="mb-1 block text-xs uppercase tracking-wider text-zinc-400">
-                The Bet / Prediction
+                The Claim
               </label>
               <input
                 required
@@ -101,13 +101,15 @@ export default function Home() {
               disabled={loading}
               className="w-full bg-red-600 py-4 text-lg font-black uppercase tracking-wider text-black transition-transform hover:bg-red-700 active:translate-y-1 disabled:opacity-50"
             >
-              {loading ? "Locking It In..." : "Generate Bet Link"}
+              {loading ? "Locking It In..." : "Lock In The Bet"}
             </button>
             {error ? <p className="text-sm text-red-400">{error}</p> : null}
           </form>
         ) : (
           <div className="space-y-4 text-center">
-            <p className="text-sm text-zinc-400">Bet created. Drop this into WhatsApp:</p>
+            <p className="text-sm text-zinc-400">
+              Bet locked. Drop this into WhatsApp or Telegram:
+            </p>
             <input
               readOnly
               value={link}
@@ -118,7 +120,7 @@ export default function Home() {
               onClick={handleCopy}
               className="w-full bg-yellow-400 py-3 font-black uppercase tracking-wider text-black hover:bg-yellow-500"
             >
-              {copied ? "Copied!" : "Copy Link to Chat"}
+              {copied ? "Copied!" : "Copy Link"}
             </button>
             <a
               href={link}

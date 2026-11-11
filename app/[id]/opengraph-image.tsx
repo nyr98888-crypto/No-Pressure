@@ -17,10 +17,10 @@ export default async function Image({
   });
 
   const bet = result.rows[0] as unknown as
-    | { claim?: string; stake?: string }
+    | { challenge_text?: string; stake_text?: string; claim?: string; stake?: string }
     | undefined;
-  const claim = bet?.claim || "I bet you lose.";
-  const stake = bet?.stake || "Bragging rights";
+  const claim = bet?.challenge_text || bet?.claim || "I bet you lose.";
+  const stake = bet?.stake_text || bet?.stake || "Bragging rights";
 
   return new ImageResponse(
     (

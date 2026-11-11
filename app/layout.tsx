@@ -15,11 +15,13 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BET YOU LOSE",
-  description: "Create a bet link. Drop it in chat. Make them pay up.",
+  title: "NO PRESSURE",
+  description:
+    "Deal a tactical challenge to your friend. Sudden death before default forfeit.",
   openGraph: {
-    title: "BET YOU LOSE. PAY UP.",
-    description: "Create a bet link. Drop it in chat. Make them pay up.",
+    title: "NO PRESSURE — Every dare. Zero escape.",
+    description:
+      "Deal a tactical challenge to your friend. Sudden death before default forfeit.",
   },
 };
 
@@ -29,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${spaceGrotesk.variable} ${spaceMono.variable} h-full dark antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-black font-mono text-white">
+      <body className="flex min-h-full flex-col bg-[#050505] font-sans text-white">
         {children}
       </body>
     </html>

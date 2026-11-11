@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS bets (
-  id TEXT PRIMARY KEY,               -- Short nano-id (e.g. 'k8s9x2')
-  creator_name TEXT NOT NULL,
-  claim TEXT NOT NULL,               -- "Dan won't finish the 10k run"
-  stake TEXT NOT NULL,               -- "Dinner at Taizu"
+  id TEXT PRIMARY KEY,
+  challenge_text TEXT NOT NULL,
+  stake_text TEXT NOT NULL,
+  status TEXT DEFAULT 'pending_approval', -- pending_approval | locked | resolved
+  creator_name TEXT DEFAULT 'Challenger',
   opponent_name TEXT,
-  status TEXT DEFAULT 'PENDING',     -- 'PENDING' | 'LOCKED' | 'RESOLVED'
-  winner TEXT,                       -- 'CREATOR' | 'OPPONENT'
+  winner TEXT,
   paid_receipt BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   resolved_at TIMESTAMP

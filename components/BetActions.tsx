@@ -35,7 +35,7 @@ export default function BetActions({ bet }: BetActionsProps) {
     router.refresh();
   }
 
-  if (bet.status === "PENDING") {
+  if (bet.status === "pending_approval") {
     return (
       <div className="space-y-4">
         <div className="flex justify-center">
@@ -66,7 +66,7 @@ export default function BetActions({ bet }: BetActionsProps) {
     );
   }
 
-  if (bet.status === "LOCKED") {
+  if (bet.status === "locked") {
     return (
       <div className="space-y-4">
         <div className="flex justify-center">

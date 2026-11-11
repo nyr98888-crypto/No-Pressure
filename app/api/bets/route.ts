@@ -44,19 +44,36 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     await ensureSchema();
-    const { creatorName, claim, stake } = await req.json();
+    const body = await req.json();
 
-    if (!creatorName || !claim || !stake) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    const challenge_text = String(
+      body.challenge_text ?? body.claim ?? ""
+    ).trim();
+    const stake_text = String(body.stake_text ?? body.stake ?? "").trim();
+
+    if (!challenge_text || !stake_text) {
+      return NextResponse.json(
+        { error: "challenge_text and stake_text are required" },
+        { status: 400 }
+      );
     }
 
     const id = nanoid(6);
+    const status = "pending_approval";
+
     await db.execute({
-      sql: `INSERT INTO bets (id, creator_name, claim, stake, status) VALUES (?, ?, ?, ?, 'PENDING')`,
-      args: [id, creatorName.trim(), claim.trim(), stake.trim()],
+      sql: `INSERT INTO bets (id, challenge_text, stake_text, status, creator_name)
+            VALUES (?, ?, ?, ?, ?)`,
+      args: [id, challenge_text, stake_text, status, "Challenger"],
     });
 
-    return NextResponse.json({ id, url: `/${id}` });
+    return NextResponse.json({
+      id,
+      url: `/${id}`,
+      challenge_text,
+      stake_text,
+      status,
+    });
   } catch {
     return NextResponse.json({ error: "Failed to create bet" }, { status: 500 });
   }

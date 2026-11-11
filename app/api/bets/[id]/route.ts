@@ -15,37 +15,31 @@ export async function PATCH(
     await ensureSchema();
     const { id } = await params;
     const body = (await req.json()) as PatchBody;
-    const { action, opponentName, winner } = body;
+    const { action, winner } = body;
 
     const existing = await db.execute({
       sql: "SELECT * FROM bets WHERE id = ?",
       args: [id],
     });
 
-    const bet = existing.rows[0] as unknown as
-      | {
-          status: string;
-        }
-      | undefined;
+    const bet = existing.rows[0] as unknown as { status: string } | undefined;
 
     if (!bet) {
       return NextResponse.json({ error: "Bet not found" }, { status: 404 });
     }
 
     if (action === "accept") {
-      if (bet.status !== "PENDING") {
+      if (bet.status !== "pending_approval") {
         return NextResponse.json({ error: "Bet already locked" }, { status: 400 });
       }
-      if (!opponentName?.trim()) {
-        return NextResponse.json({ error: "Opponent name required" }, { status: 400 });
-      }
 
+      const opponentName = String(body.opponentName || "Rival").trim() || "Rival";
       await db.execute({
-        sql: `UPDATE bets SET opponent_name = ?, status = 'LOCKED' WHERE id = ?`,
-        args: [opponentName.trim(), id],
+        sql: `UPDATE bets SET opponent_name = ?, status = 'locked' WHERE id = ?`,
+        args: [opponentName, id],
       });
     } else if (action === "resolve") {
-      if (bet.status !== "LOCKED") {
+      if (bet.status !== "locked") {
         return NextResponse.json({ error: "Bet must be locked first" }, { status: 400 });
       }
       if (winner !== "CREATOR" && winner !== "OPPONENT") {
@@ -53,11 +47,11 @@ export async function PATCH(
       }
 
       await db.execute({
-        sql: `UPDATE bets SET winner = ?, status = 'RESOLVED', resolved_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        sql: `UPDATE bets SET winner = ?, status = 'resolved', resolved_at = CURRENT_TIMESTAMP WHERE id = ?`,
         args: [winner, id],
       });
     } else if (action === "mark_paid") {
-      if (bet.status !== "RESOLVED") {
+      if (bet.status !== "resolved") {
         return NextResponse.json({ error: "Bet must be resolved first" }, { status: 400 });
       }
 

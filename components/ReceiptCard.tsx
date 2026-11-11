@@ -8,9 +8,9 @@ type ReceiptCardProps = {
 
 export default function ReceiptCard({ bet }: ReceiptCardProps) {
   const winnerName =
-    bet.winner === "CREATOR" ? bet.creator_name : bet.opponent_name || "Opponent";
+    bet.winner === "CREATOR" ? bet.creator_name || "Winner" : bet.opponent_name || "Opponent";
   const loserName =
-    bet.winner === "CREATOR" ? bet.opponent_name || "Opponent" : bet.creator_name;
+    bet.winner === "CREATOR" ? bet.opponent_name || "Opponent" : bet.creator_name || "Challenger";
 
   function handlePrint() {
     window.print();
@@ -42,28 +42,28 @@ export default function ReceiptCard({ bet }: ReceiptCardProps) {
     ctx.fillText("CLAIM", 60, 260);
     ctx.fillStyle = "#f4f4f5";
     ctx.font = "bold 32px monospace";
-    wrapText(ctx, `"${bet.claim}"`, 60, 310, 680, 40);
+    wrapText(ctx, `"${bet.challenge_text}"`, 60, 310, 680, 40);
 
     ctx.fillStyle = "#a1a1aa";
     ctx.font = "24px monospace";
     ctx.fillText("STAKE", 60, 460);
     ctx.fillStyle = "#eab308";
     ctx.font = "bold 36px monospace";
-    ctx.fillText(bet.stake, 60, 510);
+    ctx.fillText(bet.stake_text, 60, 510);
 
     ctx.fillStyle = "#a1a1aa";
     ctx.font = "24px monospace";
     ctx.fillText("WINNER", 60, 600);
     ctx.fillStyle = "#22c55e";
     ctx.font = "bold 40px monospace";
-    ctx.fillText(winnerName, 60, 655);
+    ctx.fillText(winnerName || "Winner", 60, 655);
 
     ctx.fillStyle = "#a1a1aa";
     ctx.font = "24px monospace";
     ctx.fillText("OWES", 60, 740);
     ctx.fillStyle = "#ef4444";
     ctx.font = "bold 40px monospace";
-    ctx.fillText(loserName, 60, 795);
+    ctx.fillText(loserName || "Loser", 60, 795);
 
     ctx.fillStyle = "#71717a";
     ctx.font = "20px monospace";
@@ -95,11 +95,11 @@ export default function ReceiptCard({ bet }: ReceiptCardProps) {
         <div className="space-y-3 border-y border-dashed border-zinc-700 py-4">
           <div>
             <p className="text-xs uppercase tracking-wider text-zinc-500">Claim</p>
-            <p className="text-lg font-extrabold text-zinc-100">&quot;{bet.claim}&quot;</p>
+            <p className="text-lg font-extrabold text-zinc-100">&quot;{bet.challenge_text}&quot;</p>
           </div>
           <div>
             <p className="text-xs uppercase tracking-wider text-zinc-500">Stake</p>
-            <p className="text-lg font-bold text-yellow-400">{bet.stake}</p>
+            <p className="text-lg font-bold text-yellow-400">{bet.stake_text}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

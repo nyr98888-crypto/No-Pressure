@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { DareView } from "@/components/DareView";
 
-export const instant = false;
-
 async function DarePageInner({
   params,
 }: {

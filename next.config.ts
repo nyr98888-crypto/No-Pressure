@@ -16,8 +16,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
+  // cacheComponents / partialPrefetching disabled: Vercel was packaging
+  // Ready builds with an empty route manifest (404 NOT_FOUND on all URLs).
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   async headers() {

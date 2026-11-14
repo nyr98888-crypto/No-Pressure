@@ -1,0 +1,487 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #070a12;
+  --glass: #0d1220;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text: #f4f7ff;
+  --muted: #9aa3b8;
+  --heat: #00e676;
+  --heat-glow: rgba(0, 230, 118, 0.35);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+@theme inline {
+  --color-obsidian: #070a12;
+  --color-glass: #0d1220;
+  --color-heat-1: #00e676;
+  --color-heat-2: #00b0ff;
+  --color-heat-3: #ffd600;
+  --color-heat-4: #ff6d00;
+  --color-heat-5: #ff1744;
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255, 23, 68, 0.08), transparent 60%),
+    radial-gradient(800px 400px at 80% 20%, rgba(0, 176, 255, 0.06), transparent 50%),
+    var(--bg);
+}
+
+::selection {
+  background: rgba(255, 23, 68, 0.35);
+}
+
+/* ——— OneTap glossy 3D pills ——— */
+.pill-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 -2px 0 rgba(0, 0, 0, 0.35) inset,
+    0 8px 18px rgba(0, 0, 0, 0.45);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  transition: transform 100ms ease, filter 150ms ease, box-shadow 150ms ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pill-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.08) 38%,
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.pill-3d::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -30%;
+  width: 40%;
+  height: 180%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  transform: translateX(-120%) rotate(18deg);
+  transition: transform 450ms ease;
+  pointer-events: none;
+}
+
+.pill-3d:hover::after,
+.pill-3d:active::after {
+  transform: translateX(320%) rotate(18deg);
+}
+
+.pill-3d:active {
+  transform: scale(0.95) translateY(2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.35) inset,
+    0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel {
+  background: linear-gradient(
+    160deg,
+    rgba(13, 18, 32, 0.92),
+    rgba(7, 10, 18, 0.88)
+  );
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* ——— Heat frames ——— */
+.heat-frame {
+  --heat: #00e676;
+  --heat-glow: rgba(0, 230, 118, 0.35);
+  position: relative;
+  border-radius: 1.25rem;
+  border: 2px solid var(--heat);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 28px var(--heat-glow);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.heat-1 {
+  --heat: #00e676;
+  --heat-glow: rgba(0, 230, 118, 0.35);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--glass), var(--glass)) padding-box,
+    linear-gradient(#00e676, #69f0ae) border-box;
+  animation: sonarPulse 2.2s ease-out infinite;
+}
+
+.heat-2 {
+  --heat: #00b0ff;
+  --heat-glow: rgba(0, 176, 255, 0.4);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--glass), var(--glass)) padding-box,
+    linear-gradient(
+      90deg,
+      #00b0ff 0%,
+      #00e5ff 25%,
+      #004dff 50%,
+      #00e5ff 75%,
+      #00b0ff 100%
+    )
+      border-box;
+  background-size: 100% 100%, 280% 100%;
+  animation: cyanScan 1.6s linear infinite;
+  box-shadow: 0 0 28px var(--heat-glow);
+}
+
+.heat-3 {
+  --heat: #ffd600;
+  --heat-glow: rgba(255, 214, 0, 0.35);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--glass), var(--glass)) padding-box,
+    repeating-linear-gradient(
+      -45deg,
+      #111 0 10px,
+      #ffd600 10px 20px
+    )
+      border-box;
+  background-size: 100% 100%, 28px 28px;
+  animation: hazardStripe 0.55s linear infinite;
+  box-shadow: 0 0 28px var(--heat-glow);
+}
+
+.heat-4 {
+  --heat: #ff6d00;
+  --heat-glow: rgba(255, 109, 0, 0.45);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--glass), var(--glass)) padding-box,
+    linear-gradient(
+      90deg,
+      #e65100 0%,
+      #ff6d00 20%,
+      #ffab40 45%,
+      #ff3d00 70%,
+      #e65100 100%
+    )
+      border-box;
+  background-size: 100% 100%, 260% 100%;
+  animation: moltenWave 1.35s ease-in-out infinite;
+  box-shadow: 0 0 28px var(--heat-glow);
+}
+
+.heat-5 {
+  --heat: #ff1744;
+  --heat-glow: rgba(255, 23, 68, 0.55);
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--glass), var(--glass)) padding-box,
+    linear-gradient(
+      90deg,
+      #d50000 0%,
+      #ff1744 30%,
+      #ff5252 55%,
+      #ff1744 75%,
+      #b71c1c 100%
+    )
+      border-box;
+  background-size: 100% 100%, 240% 100%;
+  animation:
+    fireFlicker 0.35s steps(2) infinite,
+    heatTremor 0.45s ease-in-out infinite,
+    crimsonScan 0.9s linear infinite;
+  box-shadow:
+    0 0 40px rgba(255, 23, 68, 0.55),
+    0 0 80px rgba(213, 0, 0, 0.35);
+}
+
+@keyframes sonarPulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(0, 230, 118, 0.5),
+      0 0 18px rgba(0, 230, 118, 0.35);
+  }
+  70% {
+    box-shadow:
+      0 0 0 14px rgba(0, 230, 118, 0),
+      0 0 32px rgba(0, 230, 118, 0.45);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(0, 230, 118, 0),
+      0 0 18px rgba(0, 230, 118, 0.35);
+  }
+}
+
+@keyframes cyanScan {
+  0% {
+    background-position: 0 0, 0% 0;
+    box-shadow: 0 0 22px rgba(0, 176, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 36px rgba(0, 229, 255, 0.55);
+  }
+  100% {
+    background-position: 0 0, 100% 0;
+    box-shadow: 0 0 22px rgba(0, 176, 255, 0.35);
+  }
+}
+
+@keyframes hazardStripe {
+  to {
+    background-position: 0 0, 28px 0;
+  }
+}
+
+@keyframes moltenWave {
+  0%,
+  100% {
+    background-position: 0 0, 0% 0;
+    box-shadow: 0 0 24px rgba(255, 109, 0, 0.4);
+  }
+  50% {
+    background-position: 0 0, 100% 0;
+    box-shadow: 0 0 40px rgba(255, 171, 64, 0.55);
+  }
+}
+
+@keyframes crimsonScan {
+  to {
+    background-position: 0 0, 100% 0;
+  }
+}
+
+@keyframes fireFlicker {
+  0% {
+    box-shadow:
+      0 0 32px rgba(255, 23, 68, 0.45),
+      0 0 70px rgba(213, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 48px rgba(255, 82, 82, 0.7),
+      0 0 90px rgba(255, 23, 68, 0.45);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(213, 0, 0, 0.4),
+      0 0 60px rgba(183, 28, 28, 0.3);
+  }
+}
+
+@keyframes heatTremor {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(0.4px, -0.3px);
+  }
+  75% {
+    transform: translate(-0.4px, 0.3px);
+  }
+}
+
+.hazard-pulse {
+  animation: hazardPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes hazardPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* Ember / fire particles */
+.ember-layer,
+.shockwave,
+.confetti-burst {
+  pointer-events: none;
+}
+
+.ember-layer span {
+  position: absolute;
+  bottom: 8%;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #ff6d00;
+  box-shadow: 0 0 8px #ff1744;
+  animation: riseEmber linear infinite;
+  opacity: 0.85;
+}
+
+@keyframes riseEmber {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-180px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Impact slam stamp */
+.animate-impact-slam {
+  animation: impactSlam 420ms cubic-bezier(0.2, 1.4, 0.3, 1) both;
+  transform-origin: center;
+}
+
+@keyframes impactSlam {
+  0% {
+    transform: scale(2.4) rotate(-14deg);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  55% {
+    transform: scale(0.92) rotate(-5deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1) rotate(-6deg);
+    opacity: 1;
+  }
+}
+
+.screen-shake {
+  animation: screenShake 250ms linear;
+}
+
+@keyframes screenShake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-4px, 2px);
+  }
+  40% {
+    transform: translate(4px, -3px);
+  }
+  60% {
+    transform: translate(-3px, -2px);
+  }
+  80% {
+    transform: translate(3px, 2px);
+  }
+}
+
+.shockwave-ring {
+  position: absolute;
+  inset: 10%;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  animation: shockwave 500ms ease-out forwards;
+}
+
+@keyframes shockwave {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.animate-ember-burst {
+  position: relative;
+}
+
+.animate-ember-burst::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 214, 0, 0.45), transparent 40%),
+    radial-gradient(circle at 30% 40%, rgba(255, 23, 68, 0.4), transparent 25%),
+    radial-gradient(circle at 70% 35%, rgba(255, 109, 0, 0.4), transparent 25%);
+  animation: emberBurst 700ms ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes emberBurst {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.stat-popup {
+  animation: floatPop 900ms ease-out forwards;
+}
+
+@keyframes floatPop {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.05);
+  }
+  100% {
+    transform: translateY(-36px) scale(1);
+    opacity: 0;
+  }
+}
+
+.countdown-ring {
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 100ms linear;
+}
+
+.modal-backdrop {
+  background: rgba(3, 5, 10, 0.78);
+  backdrop-filter: blur(10px);
+}

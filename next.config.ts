@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 /**
- * Security headers that MUST NOT block Next.js hydration, Tailwind, blob:/data:
- * media, canvas PNG exports, or Web Audio.
- * CSP is intentionally omitted (or keep Report-Only only) — a tight enforce CSP
- * previously froze the app on the Suspense "Loading No Pressure…" fallback.
+ * Platform security headers (replaces middleware/proxy).
+ * No Edge middleware — avoids Vercel Edge routing manifest failures on Next 16.
  */
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },

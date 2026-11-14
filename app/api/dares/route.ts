@@ -11,7 +11,9 @@ import {
 import { FREE_DARE_LIMIT, isPaywallEnabled } from "@/lib/paywall";
 import {
   assertClientChallengeOrAllow,
+  cookieOptions,
   ensurePublicSession,
+  SESSION_COOKIE,
 } from "@/lib/session";
 import { parseCreatePayload } from "@/lib/validateDare";
 
@@ -111,24 +113,30 @@ export async function POST(req: Request) {
     await ensureSchema(db);
     await wipeExpired(db);
 
-    // Atomic free-quota / level gate only when PAYWALL_ENABLED=true
-    let sessionId: string | null = null;
-    if (isPaywallEnabled()) {
-      const { body: session } = await ensurePublicSession();
-      sessionId = session.sessionId;
-      if (!session.isUnlocked) {
-        if (parsed.level >= 4) {
-          return NextResponse.json(
-            { error: "Unlock required for Inferno levels", code: "PAYWALL" },
-            { status: 402 }
-          );
+    // Issue / refresh np_session here (not middleware)
+    const { body: session, setCookie } = await ensurePublicSession();
+    const sessionId = session.sessionId;
+
+    if (isPaywallEnabled() && !session.isUnlocked) {
+      if (parsed.level >= 4) {
+        const denied = NextResponse.json(
+          { error: "Unlock required for Inferno levels", code: "PAYWALL" },
+          { status: 402 }
+        );
+        if (setCookie) {
+          denied.cookies.set(SESSION_COOKIE, setCookie, cookieOptions());
         }
-        if (session.dareCount >= FREE_DARE_LIMIT) {
-          return NextResponse.json(
-            { error: "Free dare limit reached", code: "PAYWALL" },
-            { status: 402 }
-          );
+        return denied;
+      }
+      if (session.dareCount >= FREE_DARE_LIMIT) {
+        const denied = NextResponse.json(
+          { error: "Free dare limit reached", code: "PAYWALL" },
+          { status: 402 }
+        );
+        if (setCookie) {
+          denied.cookies.set(SESSION_COOKIE, setCookie, cookieOptions());
         }
+        return denied;
       }
     }
 
@@ -159,14 +167,16 @@ export async function POST(req: Request) {
       ],
     });
 
-    if (sessionId) {
-      await db.execute({
-        sql: `UPDATE sessions SET dare_count = dare_count + 1, updated_at = ? WHERE id = ?`,
-        args: [created_at, sessionId],
-      });
-    }
+    await db.execute({
+      sql: `UPDATE sessions SET dare_count = dare_count + 1, updated_at = ? WHERE id = ?`,
+      args: [created_at, sessionId],
+    });
 
-    return NextResponse.json({ id, expires_at, creatorToken });
+    const res = NextResponse.json({ id, expires_at, creatorToken });
+    if (setCookie) {
+      res.cookies.set(SESSION_COOKIE, setCookie, cookieOptions());
+    }
+    return res;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Server error";
     return NextResponse.json({ error: message }, { status: 500 });

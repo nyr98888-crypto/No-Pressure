@@ -35,7 +35,8 @@ export async function compressImageFile(
 
 export async function stampIDareYou(
   imageDataUrl: string,
-  bannerText: string
+  bannerText: string,
+  fillColor = "#FF1744"
 ): Promise<string> {
   const img = new Image();
   img.crossOrigin = "anonymous";
@@ -51,21 +52,40 @@ export async function stampIDareYou(
   if (!ctx) throw new Error("Canvas unsupported");
   ctx.drawImage(img, 0, 0);
 
-  const pad = Math.round(img.height * 0.04);
-  const boxH = Math.round(img.height * 0.16);
-  ctx.fillStyle = "rgba(7,10,18,0.82)";
-  ctx.fillRect(0, img.height - boxH - pad, img.width, boxH);
+  const boxH = Math.round(img.height * 0.22);
+  const top = img.height - boxH;
+  const grad = ctx.createLinearGradient(0, top, 0, img.height);
+  grad.addColorStop(0, "rgba(5, 7, 13, 0)");
+  grad.addColorStop(0.28, "rgba(5, 7, 13, 0.85)");
+  grad.addColorStop(1, "rgba(5, 7, 13, 0.92)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, top, img.width, boxH);
 
-  ctx.fillStyle = "#FF1744";
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = Math.max(2, img.width * 0.004);
-  ctx.font = `900 ${Math.round(img.width * 0.055)}px Impact, Haettenschweiler, sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
   const text = bannerText.toUpperCase();
   const x = img.width / 2;
-  const y = img.height - boxH / 2 - pad / 2;
+  const y = img.height - boxH * 0.42;
+  const fontSize = Math.max(28, Math.round(img.width * 0.072));
+  ctx.font = `900 ${fontSize}px Impact, "Arial Black", sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
+
+  // Thick dark outline first for max contrast on any photo
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = "#05070D";
   ctx.strokeText(text, x, y);
+
+  // Level-color glow + crisp white fill
+  ctx.shadowColor = fillColor;
+  ctx.shadowBlur = Math.max(10, img.width * 0.018);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText(text, x, y);
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#FFFFFF";
   ctx.fillText(text, x, y);
 
   return canvas.toDataURL("image/jpeg", 0.82);

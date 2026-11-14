@@ -58,7 +58,7 @@ export const SLOT_REEL_KEYS: SlotReelKey[] = [
   "FOCUS",
 ];
 
-export const SLOT_STOP_MS = [400, 650, 900, 1150] as const;
+export const SLOT_STOP_MS = [500, 800, 1100, 1400] as const;
 
 export function pickReelValue(key: SlotReelKey): string {
   const pool = SLOT_REELS[key];

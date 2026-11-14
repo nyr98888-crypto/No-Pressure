@@ -1,13 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  AlertTriangle,
+  Ban,
+  CheckCircle2,
+  Crown,
+  Hourglass,
+} from "lucide-react";
 import { compressAudioBlob, compressImageFile, compressVideoBlob } from "@/lib/compress";
 import { useJuice } from "@/hooks/useJuice";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useSquad } from "@/hooks/useSquad";
-import type { DareMode, DareRecord, HeatLevel } from "@/lib/types";
+import { creatorTokenKey } from "@/lib/storageKeys";
+import { STATUS_STAMPS, type DareMode, type DareRecord, type HeatLevel } from "@/lib/types";
+import { BrandCorner } from "./BrandCorner";
 import { DownloadCardButton } from "./DownloadCardButton";
 import { HeatFrame } from "./HeatFrame";
+import { iconSm, iconXs } from "./icons";
 import { SharePills } from "./SharePills";
 import { StatusStamp } from "./StatusStamp";
 
@@ -24,6 +34,14 @@ function stampForStatus(status: DareRecord["status"]) {
   if (status === "certified") return "certified" as const;
   if (status === "capped") return "capped" as const;
   return "open" as const;
+}
+
+function exportStamp(dare: DareRecord) {
+  if (dare.status === "capped") return STATUS_STAMPS.capped;
+  if (dare.status === "certified") return STATUS_STAMPS.certified;
+  if (dare.status === "proved") return STATUS_STAMPS.cooked;
+  if (dare.passes > 0) return STATUS_STAMPS.chickened;
+  return STATUS_STAMPS.open;
 }
 
 export function DareView({ initialId }: { initialId: string }) {
@@ -58,10 +76,20 @@ export function DareView({ initialId }: { initialId: string }) {
   }, [initialId]);
 
   const patch = async (body: Record<string, unknown>) => {
+    let creatorToken: string | undefined;
+    try {
+      creatorToken = localStorage.getItem(creatorTokenKey(initialId)) || undefined;
+    } catch {
+      creatorToken = undefined;
+    }
     const res = await fetch(`/api/dares/${initialId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...body, _hp: "" }),
+      body: JSON.stringify({
+        ...body,
+        ...(creatorToken ? { creatorToken } : {}),
+        _hp: "",
+      }),
     });
     if (res.status === 410) {
       setGone(true);
@@ -110,184 +138,216 @@ export function DareView({ initialId }: { initialId: string }) {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <div className={`mx-auto max-w-lg space-y-4 p-4 ${shake ? "screen-shake" : ""}`}>
-      <div className="flex items-center justify-between gap-2">
-        <a href="/" className="pill-3d bg-white/10 px-3 py-1.5 text-xs">
-          ← Home
-        </a>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className={`pill-3d px-3 py-1.5 text-[10px] ${role === "recipient" ? "bg-rose-600 text-white" : "bg-white/10"}`}
-            onClick={() => setRole("recipient")}
-          >
-            I&apos;m Challenged
-          </button>
-          <button
-            type="button"
-            className={`pill-3d px-3 py-1.5 text-[10px] ${role === "sender" ? "bg-amber-500 text-black" : "bg-white/10"}`}
-            onClick={() => setRole("sender")}
-          >
-            I Sent This
-          </button>
+    <div className={`heat-stage heat-stage-${dare.level} min-h-full`}>
+      <div className={`mx-auto max-w-lg space-y-4 p-4 ${shake ? "screen-shake" : ""}`}>
+        <div className="flex items-center justify-between gap-2">
+          <a href="/" className="pill-3d bg-white/10 px-3 py-1.5 text-xs">
+            ← Home
+          </a>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className={`pill-3d px-3 py-1.5 text-[10px] ${role === "recipient" ? "bg-rose-600 text-white" : "bg-white/10"}`}
+              onClick={() => setRole("recipient")}
+            >
+              I&apos;m Challenged
+            </button>
+            <button
+              type="button"
+              className={`pill-3d px-3 py-1.5 text-[10px] ${role === "sender" ? "bg-amber-500 text-black" : "bg-white/10"}`}
+              onClick={() => setRole("sender")}
+            >
+              I Sent This
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div ref={cardRef} className={burst ? "animate-ember-burst" : ""}>
-        <HeatFrame level={dare.level as HeatLevel} className="space-y-3 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-[10px] font-black tracking-widest text-[#9aa3b8]">
-                FROM {dare.sender_name.toUpperCase()}
-                {dare.target_name ? ` → ${dare.target_name.toUpperCase()}` : ""}
-              </p>
-              <p className="font-[family-name:var(--font-display)] text-xl font-black">
-                LVL {dare.level} · {dare.level_label}
-              </p>
-            </div>
-            <StatusStamp kind={stampForStatus(dare.status)} slam={slam} />
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-[11px] font-bold">
-            <span className="rounded-full bg-black/40 px-2 py-1">
-              ⏳ Self-destructs in {ttlLabel(dare.expires_at)}
-            </span>
-            <span className="rounded-full bg-black/40 px-2 py-1">
-              🐔 PASSED {dare.passes}x
-            </span>
-          </div>
-
-          {dare.dare_text && (
-            <p className="text-sm leading-relaxed">{dare.dare_text}</p>
-          )}
-          {dare.forfeit && (
-            <p className="text-xs text-[#9aa3b8]">Forfeit: {dare.forfeit}</p>
-          )}
-
-          <MediaBlock mode={dare.mode} data={dare.media_data} />
-
-          {dare.proof_data && (
-            <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/5 p-3">
-              <p className="mb-2 text-[10px] font-black tracking-widest text-emerald-300">
-                PROOF
-              </p>
-              <MediaBlock mode={dare.proof_mode || "photo"} data={dare.proof_data} />
-            </div>
-          )}
-        </HeatFrame>
-      </div>
-
-      <DownloadCardButton targetRef={cardRef} filename={`dare-${dare.id}.png`} />
-
-      {role === "recipient" && (
-        <div className="space-y-2">
-          {(dare.status === "open" || dare.status === "capped") && (
-            <>
-              <button
-                type="button"
-                className="pill-3d w-full bg-gradient-to-b from-amber-300 to-orange-600 px-4 py-3 text-sm text-black"
-                onClick={async () => {
-                  await patch({ action: "lock" });
-                  lockIn();
-                  await impact("lock");
-                }}
-              >
-                Lock In Dare
-              </button>
-              <button
-                type="button"
-                className="pill-3d w-full bg-gradient-to-b from-orange-500 to-rose-700 px-4 py-3 text-sm text-white"
-                disabled={dare.level >= 5}
-                onClick={async () => {
-                  await patch({ action: "chicken" });
-                  await impact("cap");
-                }}
-              >
-                Chicken Out & Raise +1 Heat 🐔🔥
-              </button>
-            </>
-          )}
-
-          {(dare.status === "open" ||
-            dare.status === "locked" ||
-            dare.status === "capped") && (
-            <ProofDropper
-              busy={proofBusy}
-              onProof={async (proof_mode, proof_data) => {
-                setProofBusy(true);
-                try {
-                  await patch({ action: "proof", proof_mode, proof_data });
-                  cook();
-                  await impact("boom");
-                } finally {
-                  setProofBusy(false);
+        <div
+          ref={cardRef}
+          className={burst ? "animate-ember-burst" : ""}
+          data-np-level={dare.level}
+          data-np-title={`LVL ${dare.level} · ${dare.level_label}`}
+          data-np-body={dare.dare_text || ""}
+          data-np-stamp={exportStamp(dare)}
+        >
+          <HeatFrame level={dare.level as HeatLevel} className="receipt-card space-y-3 p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <BrandCorner />
+                <p className="mt-1 text-[10px] font-black tracking-widest text-[#9aa3b8]">
+                  FROM {dare.sender_name.toUpperCase()}
+                  {dare.target_name ? ` → ${dare.target_name.toUpperCase()}` : ""}
+                </p>
+                <p
+                  data-export-title
+                  className="font-[family-name:var(--font-display)] text-xl font-black tracking-tight tabular-nums"
+                >
+                  LVL {dare.level} · {dare.level_label}
+                </p>
+              </div>
+              <StatusStamp
+                kind={
+                  dare.passes > 0 &&
+                  (dare.status === "open" || dare.status === "locked")
+                    ? "chickened"
+                    : stampForStatus(dare.status)
                 }
-              }}
-            />
-          )}
-
-          {dare.status === "proved" && (
-            <div className="space-y-2 rounded-2xl border border-white/10 p-3">
-              <p className="text-sm font-bold">Send for Verdict</p>
-              <SharePills
-                url={url}
-                caption={`COOKED — PROVED IT ✓ · Sender, certify or call cap — No Pressure`}
+                slam={slam}
               />
             </div>
-          )}
+
+            <div className="flex flex-wrap gap-2 text-[11px] font-bold">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2 py-1 tabular-nums">
+                <Hourglass {...iconXs} />
+                Self-destructs in {ttlLabel(dare.expires_at)}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FFD600] bg-[#FFD600] px-2 py-1 font-black tabular-nums text-[#111]">
+                <AlertTriangle {...iconXs} />
+                PASSED {dare.passes}x
+              </span>
+            </div>
+
+            {dare.dare_text && (
+              <p data-export-body className="text-sm leading-relaxed">
+                {dare.dare_text}
+              </p>
+            )}
+            {dare.forfeit && (
+              <p className="text-xs text-[#9aa3b8]">Forfeit: {dare.forfeit}</p>
+            )}
+
+            <MediaBlock mode={dare.mode} data={dare.media_data} />
+
+            {dare.proof_data && (
+              <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/5 p-3">
+                <p className="mb-2 text-[10px] font-black tracking-widest text-emerald-300">
+                  PROOF
+                </p>
+                <MediaBlock mode={dare.proof_mode || "photo"} data={dare.proof_data} />
+              </div>
+            )}
+            <div className="border-t border-white/10 pt-2">
+              <BrandCorner align="right" />
+            </div>
+          </HeatFrame>
         </div>
-      )}
 
-      {role === "sender" && dare.status === "proved" && (
-        <div className="grid gap-2 sm:grid-cols-2">
-          <button
-            type="button"
-            className="pill-3d bg-gradient-to-b from-yellow-300 to-amber-600 px-4 py-4 text-sm text-black"
-            onClick={async () => {
-              await patch({ action: "certify" });
-              certify();
-              upsert(dare.target_name || "Challenger", {
-                certified: 1,
-                maxHeat: dare.level as HeatLevel,
-              });
-              upsert(dare.sender_name, { maxHeat: dare.level as HeatLevel });
-              await impact("pop");
-            }}
-          >
-            👑 NO CAP — CERTIFY ✓
-          </button>
-          <button
-            type="button"
-            className="pill-3d bg-gradient-to-b from-slate-500 to-slate-800 px-4 py-4 text-sm text-white"
-            onClick={async () => {
-              await patch({ action: "cap" });
-              upsert(dare.target_name || "Challenger", { capsCalled: 1 });
-              await impact("cap");
-            }}
-          >
-            🧢 CALL CAP (Redo)
-          </button>
-        </div>
-      )}
+        <DownloadCardButton targetRef={cardRef} filename="no-pressure-dare.png" />
 
-      {dare.status === "certified" && (
-        <SharePills
-          url={url}
-          caption={`NO CAP — CERTIFIED 👑 LVL ${dare.level} — No Pressure`}
-        />
-      )}
+        {role === "recipient" && (
+          <div className="space-y-2">
+            {(dare.status === "open" || dare.status === "capped") && (
+              <>
+                <button
+                  type="button"
+                  className="pill-3d w-full bg-gradient-to-b from-amber-300 to-orange-600 px-4 py-3 text-sm text-black"
+                  onClick={async () => {
+                    await patch({ action: "lock" });
+                    lockIn();
+                    await impact("lock");
+                  }}
+                >
+                  Lock In Dare
+                </button>
+                <button
+                  type="button"
+                  className="pill-3d inline-flex w-full items-center justify-center gap-2 bg-gradient-to-b from-orange-500 to-rose-700 px-4 py-3 text-sm text-white"
+                  disabled={dare.level >= 5}
+                  onClick={async () => {
+                    await patch({ action: "chicken" });
+                    await impact("cap");
+                  }}
+                >
+                  <AlertTriangle {...iconSm} />
+                  Chicken Out & Raise +1 Heat
+                </button>
+              </>
+            )}
 
-      <button
-        type="button"
-        className="w-full text-center text-[11px] text-[#9aa3b8] underline"
-        onClick={async () => {
-          if (!confirm("Report / wipe this dare permanently?")) return;
-          await patch({ action: "wipe" });
-          setGone(true);
-        }}
-      >
-        Report / Wipe
-      </button>
+            {(dare.status === "open" ||
+              dare.status === "locked" ||
+              dare.status === "capped") && (
+              <ProofDropper
+                busy={proofBusy}
+                onProof={async (proof_mode, proof_data) => {
+                  setProofBusy(true);
+                  try {
+                    await patch({ action: "proof", proof_mode, proof_data });
+                    cook();
+                    await impact("boom");
+                  } finally {
+                    setProofBusy(false);
+                  }
+                }}
+              />
+            )}
+
+            {dare.status === "proved" && (
+              <div className="space-y-2 rounded-2xl border border-white/10 p-3">
+                <p className="text-sm font-bold">Send for Verdict</p>
+                <SharePills
+                  url={url}
+                  caption="COOKED — PROVED IT · Sender, certify or call cap — No Pressure"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {role === "sender" && dare.status === "proved" && (
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              className="pill-3d inline-flex items-center justify-center gap-2 bg-gradient-to-b from-yellow-300 to-amber-600 px-4 py-4 text-sm text-black"
+              onClick={async () => {
+                await patch({ action: "certify" });
+                certify();
+                upsert(dare.target_name || "Challenger", {
+                  certified: 1,
+                  maxHeat: dare.level as HeatLevel,
+                });
+                upsert(dare.sender_name, { maxHeat: dare.level as HeatLevel });
+                await impact("pop");
+              }}
+            >
+              <Crown {...iconSm} />
+              NO CAP — CERTIFY
+              <CheckCircle2 {...iconSm} />
+            </button>
+            <button
+              type="button"
+              className="pill-3d inline-flex items-center justify-center gap-2 bg-gradient-to-b from-slate-500 to-slate-800 px-4 py-4 text-sm text-white"
+              onClick={async () => {
+                await patch({ action: "cap" });
+                upsert(dare.target_name || "Challenger", { capsCalled: 1 });
+                await impact("cap");
+              }}
+            >
+              <Ban {...iconSm} />
+              CALL CAP (Redo)
+            </button>
+          </div>
+        )}
+
+        {dare.status === "certified" && (
+          <SharePills
+            url={url}
+            caption={`NO CAP — CERTIFIED · LVL ${dare.level} — No Pressure`}
+          />
+        )}
+
+        <button
+          type="button"
+          className="w-full text-center text-[11px] text-[#9aa3b8] underline"
+          onClick={async () => {
+            if (!confirm("Report / wipe this dare permanently?")) return;
+            await patch({ action: "wipe" });
+            setGone(true);
+          }}
+        >
+          Report / Wipe
+        </button>
+      </div>
     </div>
   );
 }

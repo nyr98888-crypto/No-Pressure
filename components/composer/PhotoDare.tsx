@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Camera } from "lucide-react";
 import { compressImageFile, stampIDareYou } from "@/lib/compress";
-import type { HeatLevel } from "@/lib/types";
+import { HEAT_COLORS, type HeatLevel } from "@/lib/types";
 import { HeatFrame } from "../HeatFrame";
+import { iconSm } from "../icons";
 
 export function PhotoDare({
   level,
@@ -14,18 +16,43 @@ export function PhotoDare({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [banner, setBanner] = useState("I DARE YOU...");
+  const [baseImage, setBaseImage] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
+
+  useEffect(() => {
+    if (!baseImage) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const stamped = await stampIDareYou(
+          baseImage,
+          banner || "I DARE YOU...",
+          HEAT_COLORS[level]
+        );
+        if (cancelled) return;
+        setPreview(stamped);
+        onReadyRef.current(stamped);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Stamp failed");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [baseImage, banner, level]);
 
   const process = async (file: File) => {
     setBusy(true);
     setError(null);
     try {
       const compressed = await compressImageFile(file);
-      const stamped = await stampIDareYou(compressed, banner || "I DARE YOU...");
-      setPreview(stamped);
-      onReady(stamped);
+      setBaseImage(compressed);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Photo failed");
     } finally {
@@ -38,9 +65,10 @@ export function PhotoDare({
       <label className="block text-[10px] font-bold tracking-widest text-[#9aa3b8]">
         MEME BANNER
         <input
-          className="mt-1 w-full rounded-xl border border-white/10 bg-[#070A12] px-3 py-2 font-[family-name:var(--font-display)] text-lg font-black uppercase outline-none focus:border-rose-400"
+          className="mt-1 w-full rounded-xl border border-white/10 bg-[#05070D] px-3 py-2 font-[family-name:var(--font-display)] text-lg font-black uppercase outline-none focus:border-rose-400"
           value={banner}
           onChange={(e) => setBanner(e.target.value)}
+          style={{ color: HEAT_COLORS[level] }}
         />
       </label>
       {preview ? (
@@ -62,30 +90,21 @@ export function PhotoDare({
           if (file) void process(file);
         }}
       />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="pill-3d flex-1 bg-gradient-to-b from-cyan-400 to-cyan-700 px-3 py-3 text-xs text-white"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {busy ? "Compressing…" : "📸 Camera / Upload"}
-        </button>
-        {preview && (
-          <button
-            type="button"
-            className="pill-3d bg-white/10 px-3 py-3 text-xs"
-            onClick={async () => {
-              if (!preview) return;
-              const stamped = await stampIDareYou(preview, banner || "I DARE YOU...");
-              setPreview(stamped);
-              onReady(stamped);
-            }}
-          >
-            Re-stamp
-          </button>
+      <button
+        type="button"
+        className="pill-3d w-full bg-gradient-to-b from-cyan-400 to-cyan-700 px-3 py-3 text-xs text-white"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? (
+          "Compressing…"
+        ) : (
+          <span className="inline-flex items-center justify-center gap-2">
+            <Camera {...iconSm} />
+            Camera / Upload
+          </span>
         )}
-      </div>
+      </button>
       {error && <p className="text-xs text-rose-300">{error}</p>}
     </HeatFrame>
   );

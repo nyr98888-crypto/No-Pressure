@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Mic } from "lucide-react";
 import { compressAudioBlob } from "@/lib/compress";
 import { HEAT_COLORS, type HeatLevel } from "@/lib/types";
 import { HeatFrame } from "../HeatFrame";
+import { iconSm } from "../icons";
 
 const MAX_MS = 12_000;
 
@@ -110,7 +112,10 @@ export function VoiceRecorder({
           className="pill-3d w-full bg-gradient-to-b from-violet-400 to-violet-700 px-4 py-3 text-sm text-white"
           onClick={start}
         >
-          🎙️ Record Voice
+          <span className="inline-flex items-center justify-center gap-2">
+            <Mic {...iconSm} />
+            Record Voice
+          </span>
         </button>
       ) : (
         <button

@@ -8,4 +8,9 @@ export const LS = {
   reduceMotion: "np_reduce_motion_v1",
 } as const;
 
+/** Local-only secret for NO CAP / CALL CAP — never rendered in UI. */
+export function creatorTokenKey(dareId: string) {
+  return `np_creator_token_${dareId}`;
+}
+
 export const OPEN_TERMS_EVENT = "np:open-terms";

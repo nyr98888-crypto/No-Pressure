@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 type Network = {
   id: string;
   label: string;
-  color: string;
-  text?: string;
+  rim: string;
+  iconColor?: string;
   href: (url: string, caption: string) => string;
   icon: ReactNode;
 };
@@ -17,7 +17,8 @@ const NETWORKS: Network[] = [
   {
     id: "whatsapp",
     label: "WhatsApp",
-    color: "from-[#25D366] to-[#128C7E]",
+    rim: "rgba(37, 211, 102, 0.55)",
+    iconColor: "#25D366",
     href: (u, t) => `https://wa.me/?text=${encodeURIComponent(`${t}\n${u}`)}`,
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -28,7 +29,8 @@ const NETWORKS: Network[] = [
   {
     id: "telegram",
     label: "Telegram",
-    color: "from-[#37AEE2] to-[#1E96C8]",
+    rim: "rgba(38, 165, 228, 0.55)",
+    iconColor: "#26A5E4",
     href: (u, t) =>
       `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}`,
     icon: (
@@ -40,8 +42,8 @@ const NETWORKS: Network[] = [
   {
     id: "snapchat",
     label: "Snapchat",
-    color: "from-[#FFFC00] to-[#F7E600]",
-    text: "text-black",
+    rim: "rgba(255, 252, 0, 0.45)",
+    iconColor: "#FFFC00",
     href: () => "https://www.snapchat.com/",
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -52,18 +54,28 @@ const NETWORKS: Network[] = [
   {
     id: "tiktok",
     label: "TikTok",
-    color: "from-[#111] to-[#000]",
+    rim: "rgba(0, 242, 234, 0.4)",
     href: () => "https://www.tiktok.com/",
     icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-        <path d="M16.6 5.82A5.2 5.2 0 0 1 14.9 2h-3.1v13.1a2.6 2.6 0 1 1-1.85-2.48V9.4a5.7 5.7 0 1 0 4.55 5.55V9.5a8.3 8.3 0 0 0 4.8 1.52V8a5.2 5.2 0 0 1-2.7-2.18z" />
+      <svg className={iconClass} viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <linearGradient id="np-tiktok-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#00F2EA" />
+            <stop offset="100%" stopColor="#FF0050" />
+          </linearGradient>
+        </defs>
+        <path
+          fill="url(#np-tiktok-grad)"
+          d="M16.6 5.82A5.2 5.2 0 0 1 14.9 2h-3.1v13.1a2.6 2.6 0 1 1-1.85-2.48V9.4a5.7 5.7 0 1 0 4.55 5.55V9.5a8.3 8.3 0 0 0 4.8 1.52V8a5.2 5.2 0 0 1-2.7-2.18z"
+        />
       </svg>
     ),
   },
   {
     id: "ig",
-    label: "Instagram Reels",
-    color: "from-[#F58529] via-[#DD2A7B] to-[#8134AF]",
+    label: "Instagram",
+    rim: "rgba(225, 48, 108, 0.55)",
+    iconColor: "#E1306C",
     href: () => "https://www.instagram.com/",
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -73,8 +85,9 @@ const NETWORKS: Network[] = [
   },
   {
     id: "yt",
-    label: "YouTube Shorts",
-    color: "from-[#FF0000] to-[#C40000]",
+    label: "YouTube",
+    rim: "rgba(255, 0, 0, 0.5)",
+    iconColor: "#FF0000",
     href: () => "https://www.youtube.com/shorts",
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -85,7 +98,8 @@ const NETWORKS: Network[] = [
   {
     id: "fb",
     label: "Facebook",
-    color: "from-[#1877F2] to-[#0C63D4]",
+    rim: "rgba(24, 119, 242, 0.55)",
+    iconColor: "#1877F2",
     href: (u) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`,
     icon: (
@@ -97,7 +111,8 @@ const NETWORKS: Network[] = [
   {
     id: "x",
     label: "",
-    color: "from-[#111] to-[#000]",
+    rim: "rgba(255, 255, 255, 0.35)",
+    iconColor: "#FFFFFF",
     href: (u, t) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${t} ${u}`)}`,
     icon: (
@@ -140,8 +155,10 @@ export function SharePills({
 
   return (
     <div className="space-y-2">
-      <p className="text-[10px] font-bold tracking-[0.18em] text-[#9aa3b8]">SHARE</p>
-      <div className="flex flex-wrap gap-2">
+      <p className="text-[10px] font-bold tracking-[0.18em] text-[#9aa3b8]">
+        SHARE DOCK
+      </p>
+      <div className="share-dock flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-black/25 p-2.5 backdrop-blur-2xl">
         {NETWORKS.map((n) => (
           <a
             key={n.id}
@@ -149,7 +166,11 @@ export function SharePills({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={n.id === "x" ? "Share on X" : n.label}
-            className={`pill-3d bg-gradient-to-b ${n.color} px-3 py-2 text-[11px] ${n.text ?? "text-white"}`}
+            className="share-dock-btn pill-3d px-3 py-2 text-[11px] text-white/90"
+            style={{
+              ["--rim" as string]: n.rim,
+              color: n.iconColor,
+            }}
             onClick={async (e) => {
               try {
                 await navigator.clipboard.writeText(`${caption}\n${url}`);
@@ -162,17 +183,20 @@ export function SharePills({
               }
             }}
           >
-            {n.icon}
-            {n.label ? <span>{n.label}</span> : null}
+            <span style={{ color: n.iconColor }} className="inline-flex">
+              {n.icon}
+            </span>
+            {n.label ? <span className="text-white/90">{n.label}</span> : null}
           </a>
         ))}
         <button
           type="button"
-          className="pill-3d bg-gradient-to-b from-white/20 to-white/5 px-3 py-2 text-[11px] text-white"
+          className="share-dock-btn pill-3d px-3 py-2 text-[11px] text-white/90"
+          style={{ ["--rim" as string]: "rgba(255,255,255,0.35)" }}
           onClick={copy}
         >
           {CopyIcon}
-          Copy Link
+          Copy
         </button>
       </div>
     </div>

@@ -1,9 +1,11 @@
+export type RankId = "rookie" | "nofear" | "menace" | "legend";
+
 export function streetCredRank(certified: number): {
-  badge: string;
+  id: RankId;
   label: string;
 } {
-  if (certified >= 25) return { badge: "👑", label: "CERTIFIED LEGEND" };
-  if (certified >= 10) return { badge: "🔥", label: "MENACE" };
-  if (certified >= 3) return { badge: "⚡", label: "NO FEAR" };
-  return { badge: "🧊", label: "ROOKIE" };
+  if (certified >= 25) return { id: "legend", label: "CERTIFIED LEGEND" };
+  if (certified >= 10) return { id: "menace", label: "MENACE" };
+  if (certified >= 3) return { id: "nofear", label: "NO FEAR" };
+  return { id: "rookie", label: "ROOKIE" };
 }

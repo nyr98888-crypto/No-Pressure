@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Flame } from "lucide-react";
+import { iconXs } from "./icons";
 
 export function LivePulse() {
   const [count, setCount] = useState<number | null>(null);
@@ -28,8 +30,9 @@ export function LivePulse() {
   if (count == null) return null;
 
   return (
-    <span className="pill-3d bg-gradient-to-b from-orange-500 to-rose-700 px-3 py-1.5 text-[11px] text-white">
-      🔥 {count} Dares Live
+    <span className="pill-3d inline-flex items-center gap-1.5 bg-gradient-to-b from-orange-500 to-rose-700 px-3 py-1.5 text-[11px] text-white">
+      <Flame {...iconXs} />
+      <span className="tabular-nums">{count}</span> Dares Live
     </span>
   );
 }

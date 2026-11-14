@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Manrope } from "next/font/google";
 import { AgeGate } from "@/components/AgeGate";
+import { PaywallProvider } from "@/components/PaywallProvider";
 import { RegisterSW } from "@/components/RegisterSW";
 import "./globals.css";
 
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070A12",
+  themeColor: "#05070D",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -44,9 +45,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full antialiased">
-        {children}
-        <AgeGate />
-        <RegisterSW />
+        <PaywallProvider>
+          {children}
+          <AgeGate />
+          <RegisterSW />
+        </PaywallProvider>
       </body>
     </html>
   );

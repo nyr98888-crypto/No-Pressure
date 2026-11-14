@@ -31,22 +31,31 @@ export function clientIp(req: Request): string {
 
 export function assertSameOrigin(req: Request): boolean {
   const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
   const host = req.headers.get("host");
-  if (!origin || !host) {
-    // Allow non-browser GET tools without Origin; mutate routes must have Origin
-    return req.method === "GET" || req.method === "HEAD";
+  if (!host) return false;
+
+  const match = (urlStr: string | null) => {
+    if (!urlStr) return false;
+    try {
+      return new URL(urlStr).host === host;
+    } catch {
+      return false;
+    }
+  };
+
+  if (req.method === "GET" || req.method === "HEAD") {
+    return true;
   }
-  try {
-    const o = new URL(origin);
-    return o.host === host;
-  } catch {
-    return false;
-  }
+
+  return match(origin) || match(referer);
 }
 
 export const LIMITS = {
-  createPerHour: 10,
-  updatePerHour: 20,
+  /** Align with middleware: 12 mutating requests / 10 min (defense in depth). */
+  mutatePerWindow: 12,
+  mutateWindowMs: 10 * 60_000,
   readPerMin: 60,
-  maxPayloadBytes: 1.3 * 1024 * 1024,
+  /** Raw JSON body ceiling (base64-expanded AV up to ~15MB decoded). */
+  maxPayloadBytes: 22 * 1024 * 1024,
 } as const;

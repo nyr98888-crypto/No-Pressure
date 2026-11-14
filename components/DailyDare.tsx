@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Flame } from "lucide-react";
 import { dailyDareForDate, msUntilMidnight } from "@/lib/darePool";
 import type { HeatLevel } from "@/lib/types";
 import { HeatFrame } from "./HeatFrame";
+import { iconXs } from "./icons";
 
 function formatCountdown(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -47,10 +49,10 @@ export function DailyDare({
     <HeatFrame level={dare.level} className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-black tracking-[0.2em] text-orange-300">
-            🔥 DAILY DARE
+          <p className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.2em] text-orange-300">
+            <Flame {...iconXs} /> DAILY DARE
           </p>
-          <p className="mt-1 font-[family-name:var(--font-display)] text-xl font-black">
+          <p className="mt-1 font-[family-name:var(--font-display)] text-xl font-black tracking-tight">
             Today&apos;s heat
           </p>
         </div>

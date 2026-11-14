@@ -1,7 +1,9 @@
 "use client";
 
+import { SlidersHorizontal } from "lucide-react";
 import type { HeatLevel, TierConfig } from "@/lib/types";
 import { HEAT_COLORS } from "@/lib/types";
+import { iconXs } from "./icons";
 
 export function EscalationSlider({
   level,
@@ -19,22 +21,25 @@ export function EscalationSlider({
   const tier = tiers.find((t) => t.level === level)!;
 
   return (
-    <div className="glass-panel rounded-2xl p-4">
+    <div className="glass-panel rounded-2xl border-white/10 p-4 backdrop-blur-2xl">
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="text-[10px] font-bold tracking-[0.18em] text-[#9aa3b8]">
             RISK ESCALATION
           </p>
-          <p className="font-[family-name:var(--font-display)] text-xl font-black" style={{ color: HEAT_COLORS[level] }}>
+          <p
+            className="font-[family-name:var(--font-display)] text-2xl font-black tracking-tight tabular-nums"
+            style={{ color: HEAT_COLORS[level] }}
+          >
             LVL {level} — {tier.name}
           </p>
         </div>
         <button
           type="button"
-          className="pill-3d bg-white/10 px-3 py-1.5 text-[11px] text-white"
+          className="pill-3d inline-flex items-center gap-1.5 bg-white/10 px-3 py-1.5 text-[11px] text-white"
           onClick={onCustomize}
         >
-          ✎ Customize Tiers
+          <SlidersHorizontal {...iconXs} /> Customize Tiers
         </button>
       </div>
 
@@ -58,7 +63,7 @@ export function EscalationSlider({
           <button
             key={t.level}
             type="button"
-            className="hover:text-white"
+            className="tabular-nums hover:text-white"
             style={{ color: level === t.level ? HEAT_COLORS[t.level] : undefined }}
             onClick={() => {
               onChange(t.level);

@@ -58,12 +58,12 @@ export const DEFAULT_TIERS: TierConfig[] = [
 ];
 
 export const STATUS_STAMPS = {
-  open: "BET YOU WON'T 👀",
-  locked: "LOCKED IN ⚡",
-  chickened: "CHICKENED OUT — +1 HEAT 🐔🔥",
-  cooked: "COOKED — PROVED IT ✓",
-  certified: "NO CAP — CERTIFIED 👑",
-  capped: "ALL CAP — WEAK PROOF 🧢",
+  open: "BET YOU WON'T",
+  locked: "LOCKED IN",
+  chickened: "CHICKENED OUT — +1 HEAT",
+  cooked: "COOKED — PROVED IT",
+  certified: "NO CAP — CERTIFIED",
+  capped: "ALL CAP — WEAK PROOF",
 } as const;
 
 export const HEAT_COLORS: Record<HeatLevel, string> = {

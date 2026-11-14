@@ -28,12 +28,10 @@ export function HeatFrame({
       : null;
 
   return (
-    <div className={`heat-frame heat-${level} relative overflow-hidden ${className}`}>
-      {level === 3 && (
-        <div className="hazard-pulse absolute right-3 top-3 z-10 rounded bg-black/70 px-2 py-0.5 text-[10px] font-black tracking-widest text-yellow-300">
-          ⚠ HAZARD
-        </div>
-      )}
+    <div
+      className={`heat-frame heat-${level} relative overflow-hidden ${className}`}
+      data-np-level={level}
+    >
       {embers && <div className="ember-layer absolute inset-0 z-0">{embers}</div>}
       <div className="relative z-10">{children}</div>
     </div>

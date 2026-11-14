@@ -1,23 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { readLocalJson } from "@/lib/readLocal";
 import { LS } from "@/lib/storageKeys";
 import { DEFAULT_TIERS, type HeatLevel, type TierConfig } from "@/lib/types";
 
-export function useTiers() {
-  const [tiers, setTiers] = useState<TierConfig[]>(DEFAULT_TIERS);
+function loadTiers(): TierConfig[] {
+  const parsed = readLocalJson<TierConfig[] | null>(LS.tiers, null);
+  if (Array.isArray(parsed) && parsed.length === 5) return parsed;
+  return DEFAULT_TIERS;
+}
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS.tiers);
-      if (raw) {
-        const parsed = JSON.parse(raw) as TierConfig[];
-        if (Array.isArray(parsed) && parsed.length === 5) setTiers(parsed);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+export function useTiers() {
+  const [tiers, setTiers] = useState<TierConfig[]>(loadTiers);
 
   const save = useCallback((next: TierConfig[]) => {
     setTiers(next);

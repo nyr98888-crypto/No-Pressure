@@ -87,7 +87,7 @@ export async function ensurePublicSession(): Promise<{
     const jar = await cookies();
     const raw = jar.get(SESSION_COOKIE)?.value;
     const data = unsealSessionPayload(raw);
-    let sid =
+    const sid =
       typeof data?.sid === "string" && data.sid.length >= 16
         ? String(data.sid)
         : newSessionId();

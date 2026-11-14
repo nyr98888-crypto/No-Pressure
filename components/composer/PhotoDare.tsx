@@ -21,7 +21,10 @@ export function PhotoDare({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const onReadyRef = useRef(onReady);
-  onReadyRef.current = onReady;
+
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
 
   useEffect(() => {
     if (!baseImage) return;

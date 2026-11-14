@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Camera, Mic, Send, Type, Video } from "lucide-react";
 import { containsBlockedTerms } from "@/lib/blocklist";
 import { LS, creatorTokenKey } from "@/lib/storageKeys";
@@ -49,15 +49,17 @@ export function DareComposer({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [share, setShare] = useState<{ id: string; url: string } | null>(null);
+  const [lastInitial, setLastInitial] = useState(initialText);
   const cardRef = useRef<HTMLDivElement>(null);
   const tier = useMemo(
     () => tiers.find((t) => t.level === level)!,
     [tiers, level]
   );
 
-  useEffect(() => {
+  if (initialText !== lastInitial) {
+    setLastInitial(initialText);
     if (initialText) setDareText(initialText);
-  }, [initialText]);
+  }
 
   const send = async () => {
     setError(null);

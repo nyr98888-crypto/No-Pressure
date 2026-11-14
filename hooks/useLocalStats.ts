@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { streetCredRank } from "@/lib/rank";
+import { readLocalJson } from "@/lib/readLocal";
 import { LS } from "@/lib/storageKeys";
 import type { LocalStats } from "@/lib/types";
 
@@ -14,17 +15,11 @@ const DEFAULT: LocalStats = {
 };
 
 export function useLocalStats() {
-  const [stats, setStats] = useState<LocalStats>(DEFAULT);
+  const [stats, setStats] = useState<LocalStats>(() => ({
+    ...DEFAULT,
+    ...readLocalJson<Partial<LocalStats>>(LS.stats, {}),
+  }));
   const [popup, setPopup] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS.stats);
-      if (raw) setStats({ ...DEFAULT, ...JSON.parse(raw) });
-    } catch {
-      /* ignore */
-    }
-  }, []);
 
   const persist = useCallback((next: LocalStats) => {
     setStats(next);
@@ -48,31 +43,28 @@ export function useLocalStats() {
   const cook = useCallback(() => bump("cooked", "+1 COOKED"), [bump]);
   const certify = useCallback(() => bump("certified", "+1 CERTIFIED"), [bump]);
 
-  const completeDaily = useCallback(
-    (dayKey: string) => {
-      setStats((prev) => {
-        const consecutive = prev.lastDailyKey
-          ? (() => {
-              const last = new Date(prev.lastDailyKey + "T00:00:00");
-              const cur = new Date(dayKey + "T00:00:00");
-              const diff = (cur.getTime() - last.getTime()) / 86400000;
-              return diff === 1 ? prev.streak + 1 : 1;
-            })()
-          : 1;
-        const next = {
-          ...prev,
-          lockedIn: prev.lockedIn + 1,
-          streak: consecutive,
-          lastDailyKey: dayKey,
-        };
-        localStorage.setItem(LS.stats, JSON.stringify(next));
-        setPopup("+1 STREAK");
-        window.setTimeout(() => setPopup(null), 900);
-        return next;
-      });
-    },
-    []
-  );
+  const completeDaily = useCallback((dayKey: string) => {
+    setStats((prev) => {
+      const consecutive = prev.lastDailyKey
+        ? (() => {
+            const last = new Date(prev.lastDailyKey + "T00:00:00");
+            const cur = new Date(dayKey + "T00:00:00");
+            const diff = (cur.getTime() - last.getTime()) / 86400000;
+            return diff === 1 ? prev.streak + 1 : 1;
+          })()
+        : 1;
+      const next = {
+        ...prev,
+        lockedIn: prev.lockedIn + 1,
+        streak: consecutive,
+        lastDailyKey: dayKey,
+      };
+      localStorage.setItem(LS.stats, JSON.stringify(next));
+      setPopup("+1 STREAK");
+      window.setTimeout(() => setPopup(null), 900);
+      return next;
+    });
+  }, []);
 
   const rank = streetCredRank(stats.certified);
 

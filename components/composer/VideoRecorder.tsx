@@ -52,13 +52,25 @@ export function VideoRecorder({
     };
   }, [facing]);
 
+  const stop = () => {
+    setRecording(false);
+    if (recorderRef.current?.state === "recording") {
+      recorderRef.current.stop();
+    }
+  };
+
   useEffect(() => {
     if (!recording) return;
-    const start = Date.now();
+    const startAt = Date.now();
     const id = window.setInterval(() => {
-      const e = Date.now() - start;
+      const e = Date.now() - startAt;
       setElapsed(e);
-      if (e >= MAX_MS) stop();
+      if (e >= MAX_MS) {
+        setRecording(false);
+        if (recorderRef.current?.state === "recording") {
+          recorderRef.current.stop();
+        }
+      }
     }, 100);
     return () => clearInterval(id);
   }, [recording]);
@@ -87,11 +99,6 @@ export function VideoRecorder({
     setElapsed(0);
     setRecording(true);
     rec.start(100);
-  };
-
-  const stop = () => {
-    setRecording(false);
-    recorderRef.current?.state === "recording" && recorderRef.current.stop();
   };
 
   const progress = Math.min(1, elapsed / MAX_MS);

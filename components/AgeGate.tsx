@@ -1,25 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { LS, OPEN_TERMS_EVENT } from "@/lib/storageKeys";
 
+function subscribeAge(cb: () => void) {
+  window.addEventListener("storage", cb);
+  window.addEventListener(OPEN_TERMS_EVENT, cb);
+  return () => {
+    window.removeEventListener("storage", cb);
+    window.removeEventListener(OPEN_TERMS_EVENT, cb);
+  };
+}
+
+function ageGateOpen(): boolean {
+  return localStorage.getItem(LS.ageGate) !== "1";
+}
+
 export function AgeGate() {
-  const [open, setOpen] = useState(false);
+  const needsConsent = useSyncExternalStore(
+    subscribeAge,
+    ageGateOpen,
+    () => false
+  );
   const [reviewOnly, setReviewOnly] = useState(false);
 
   useEffect(() => {
-    const ok = localStorage.getItem(LS.ageGate) === "1";
-    setOpen(!ok);
-    setReviewOnly(false);
-
-    const onOpen = () => {
-      setReviewOnly(true);
-      setOpen(true);
-    };
+    const onOpen = () => setReviewOnly(true);
     window.addEventListener(OPEN_TERMS_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_TERMS_EVENT, onOpen);
   }, []);
 
+  const open = needsConsent || reviewOnly;
   if (!open) return null;
 
   return (
@@ -59,8 +70,8 @@ export function AgeGate() {
           className="pill-3d mt-6 w-full bg-gradient-to-b from-rose-500 to-rose-700 px-5 py-3.5 text-sm text-white"
           onClick={() => {
             localStorage.setItem(LS.ageGate, "1");
-            setOpen(false);
             setReviewOnly(false);
+            window.dispatchEvent(new Event("storage"));
           }}
         >
           {reviewOnly ? "Got It — Close" : "I Agree — Enter at My Own Risk"}

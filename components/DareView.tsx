@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   Ban,
@@ -58,21 +59,28 @@ export function DareView({ initialId }: { initialId: string }) {
   const { lockIn, cook, certify } = useLocalStats();
   const { upsert } = useSquad();
 
-  const reload = async () => {
-    const res = await fetch(`/api/dares/${initialId}`);
-    if (res.status === 410) {
-      setGone(true);
-      return;
-    }
-    if (!res.ok) {
-      setError("Could not load dare");
-      return;
-    }
-    setDare(await res.json());
-  };
-
   useEffect(() => {
-    void reload();
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/dares/${initialId}`);
+        if (cancelled) return;
+        if (res.status === 410) {
+          setGone(true);
+          return;
+        }
+        if (!res.ok) {
+          setError("Could not load dare");
+          return;
+        }
+        setDare(await res.json());
+      } catch {
+        if (!cancelled) setError("Could not load dare");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [initialId]);
 
   const patch = async (body: Record<string, unknown>) => {
@@ -141,9 +149,9 @@ export function DareView({ initialId }: { initialId: string }) {
     <div className={`heat-stage heat-stage-${dare.level} min-h-full`}>
       <div className={`mx-auto max-w-lg space-y-4 p-4 ${shake ? "screen-shake" : ""}`}>
         <div className="flex items-center justify-between gap-2">
-          <a href="/" className="pill-3d bg-white/10 px-3 py-1.5 text-xs">
-            ← Home
-          </a>
+        <Link href="/" className="pill-3d bg-white/10 px-3 py-1.5 text-xs">
+          ← Home
+        </Link>
           <div className="flex gap-2">
             <button
               type="button"

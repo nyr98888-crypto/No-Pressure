@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { readLocalJson } from "@/lib/readLocal";
 import { LS } from "@/lib/storageKeys";
 import type { HeatLevel, SquadMember } from "@/lib/types";
 
@@ -9,16 +10,9 @@ function uid() {
 }
 
 export function useSquad() {
-  const [squad, setSquad] = useState<SquadMember[]>([]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS.squad);
-      if (raw) setSquad(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const [squad, setSquad] = useState<SquadMember[]>(() =>
+    readLocalJson<SquadMember[]>(LS.squad, [])
+  );
 
   const persist = useCallback((next: SquadMember[]) => {
     setSquad(next);

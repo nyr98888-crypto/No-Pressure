@@ -1,28 +1,30 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { readLocalString } from "@/lib/readLocal";
 import { LS } from "@/lib/storageKeys";
 
 function applyClass(on: boolean) {
   const root = document.documentElement;
   root.classList.toggle("reduce-motion", on);
-  // Explicit opt-in to motion overrides prefers-reduced-motion CSS
   root.classList.toggle(
     "reduce-motion-off",
     !on && localStorage.getItem(LS.reduceMotion) === "0"
   );
 }
 
+function initialReduceMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  const saved = readLocalString(LS.reduceMotion);
+  const prefers = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return saved != null ? saved === "1" : prefers;
+}
+
 export function useReduceMotion() {
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(initialReduceMotion);
 
   useEffect(() => {
-    const saved = localStorage.getItem(LS.reduceMotion);
-    const prefers = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const on = saved != null ? saved === "1" : prefers;
-    setReduceMotion(on);
-    applyClass(on);
-
+    applyClass(reduceMotion);
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onChange = () => {
       if (localStorage.getItem(LS.reduceMotion) == null) {
@@ -32,7 +34,7 @@ export function useReduceMotion() {
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
-  }, []);
+  }, [reduceMotion]);
 
   const toggleReduceMotion = useCallback(() => {
     setReduceMotion((prev) => {

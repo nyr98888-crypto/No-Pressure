@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { readLocalString } from "@/lib/readLocal";
 import { LS } from "@/lib/storageKeys";
 
 type JuiceKind = "tick" | "slot" | "boom" | "cap" | "pop" | "lock" | "error";
@@ -15,12 +16,10 @@ function vibrate(pattern: number | number[]) {
 
 export function useJuice() {
   const ctxRef = useRef<AudioContext | null>(null);
-  const [soundOn, setSoundOn] = useState(true);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(LS.sound);
-    if (saved != null) setSoundOn(saved === "1");
-  }, []);
+  const [soundOn, setSoundOn] = useState(() => {
+    const saved = readLocalString(LS.sound);
+    return saved == null ? true : saved === "1";
+  });
 
   const toggleSound = useCallback(() => {
     setSoundOn((prev) => {
@@ -40,7 +39,6 @@ export function useJuice() {
     return ctxRef.current;
   }, []);
 
-  /** Deep tactile UI hit: sine + lowpass, fast pitch drop */
   const playDeep = useCallback(
     async (
       fromHz: number,
@@ -83,27 +81,25 @@ export function useJuice() {
   );
 
   const juice = useCallback(
-    async (kind: JuiceKind, _detail?: number) => {
+    async (kind: JuiceKind, detail?: number) => {
+      void detail;
       switch (kind) {
         case "tick":
         case "slot":
         case "lock": {
           vibrate(kind === "lock" ? 18 : kind === "slot" ? 6 : 8);
-          // Low-end mechanical click: 120Hz → 45Hz, 35ms
           await playDeep(120, 45, 0.035, kind === "lock" ? 0.12 : 0.1);
           break;
         }
         case "boom":
         case "pop": {
           vibrate(kind === "boom" ? [30, 40, 60] : 12);
-          // Deep sub-bass punch: 90Hz → 28Hz, 220ms
           await playDeep(90, 28, 0.22, 0.18);
           break;
         }
         case "cap":
         case "error": {
           vibrate(kind === "cap" ? [20, 30, 20, 30, 40] : 24);
-          // Muted low thud
           await playDeep(70, 32, 0.12, 0.07, { thud: true });
           break;
         }

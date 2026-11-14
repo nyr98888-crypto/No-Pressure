@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { TierConfig } from "@/lib/types";
 
 export function CustomizeTiersModal({
@@ -15,10 +15,13 @@ export function CustomizeTiersModal({
   onSave: (tiers: TierConfig[]) => void;
 }) {
   const [draft, setDraft] = useState(tiers);
+  const [wasOpen, setWasOpen] = useState(open);
 
-  useEffect(() => {
+  // Sync draft when the modal opens (React-approved props→state adjust during render)
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) setDraft(tiers);
-  }, [open, tiers]);
+  }
 
   if (!open) return null;
 

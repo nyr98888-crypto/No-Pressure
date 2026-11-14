@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dices,
   Flame,
@@ -44,13 +44,8 @@ export function HomeApp() {
   const { squad, addManual, edit, remove, upsert } = useSquad();
   const paywall = usePaywall();
 
-  const [todayKey, setTodayKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    setTodayKey(new Date().toISOString().slice(0, 10));
-  }, []);
-
-  const lockedToday = todayKey != null && stats.lastDailyKey === todayKey;
+  const [todayKey] = useState(() => new Date().toISOString().slice(0, 10));
+  const lockedToday = stats.lastDailyKey === todayKey;
   const hasSpark = Boolean(rouletteText?.trim());
 
   const setLevelGuarded = (next: HeatLevel) => {

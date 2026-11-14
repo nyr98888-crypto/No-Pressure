@@ -16,10 +16,10 @@ function formatCountdown(ms: number) {
 }
 
 export function DailyDare({
-  lastDailyKey,
+  lockedToday,
   onLockIn,
 }: {
-  lastDailyKey: string | null;
+  lockedToday: boolean;
   onLockIn: (payload: { key: string; text: string; level: HeatLevel }) => void;
 }) {
   const [dare, setDare] = useState<{
@@ -29,7 +29,7 @@ export function DailyDare({
   } | null>(null);
   const [left, setLeft] = useState(0);
 
-  // Date/time only after mount — never during prerender
+  // new Date() / clocks only after mount (never during prerender)
   useEffect(() => {
     const tick = () => {
       setDare(dailyDareForDate());
@@ -45,8 +45,6 @@ export function DailyDare({
       <div className="glass-panel h-36 animate-pulse rounded-2xl border border-white/10" />
     );
   }
-
-  const lockedToday = lastDailyKey === dare.key;
 
   return (
     <HeatFrame level={dare.level} className="p-4">

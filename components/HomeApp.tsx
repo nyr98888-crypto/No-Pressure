@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dices,
   Flame,
@@ -44,6 +44,12 @@ export function HomeApp() {
   const { squad, addManual, edit, remove, upsert } = useSquad();
   const paywall = usePaywall();
 
+  // Client-only "today" — never call new Date() during server/static prerender
+  const [todayKey, setTodayKey] = useState<string>("");
+  useEffect(() => {
+    setTodayKey(new Date().toISOString().slice(0, 10));
+  }, []);
+  const lockedToday = todayKey !== "" && stats.lastDailyKey === todayKey;
   const hasSpark = Boolean(rouletteText?.trim());
 
   const setLevelGuarded = (next: HeatLevel) => {
@@ -186,7 +192,7 @@ export function HomeApp() {
         onClose={() => setDailyOpen(false)}
       >
         <DailyDare
-          lastDailyKey={stats.lastDailyKey}
+          lockedToday={lockedToday}
           onLockIn={(dare) => {
             if (!paywall.requireAccess({ level: dare.level })) return;
             completeDaily(dare.key);

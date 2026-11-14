@@ -22,8 +22,8 @@ import { iconSm, iconXs } from "./icons";
 import { SharePills } from "./SharePills";
 import { StatusStamp } from "./StatusStamp";
 
-function ttlLabel(expiresAt: number) {
-  const left = Math.max(0, expiresAt - Math.floor(Date.now() / 1000));
+function formatTtl(expiresAt: number, nowSec: number) {
+  const left = Math.max(0, expiresAt - nowSec);
   const h = String(Math.floor(left / 3600)).padStart(2, "0");
   const m = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
   return `${h}:${m}`;
@@ -47,6 +47,7 @@ function exportStamp(dare: DareRecord) {
 
 export function DareView({ initialId }: { initialId: string }) {
   const [dare, setDare] = useState<DareRecord | null>(null);
+  const [nowSec, setNowSec] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [gone, setGone] = useState(false);
   const [shake, setShake] = useState(false);
@@ -82,6 +83,14 @@ export function DareView({ initialId }: { initialId: string }) {
       cancelled = true;
     };
   }, [initialId]);
+
+  // Date.now() only on the client after mount (countdown tick)
+  useEffect(() => {
+    const tick = () => setNowSec(Math.floor(Date.now() / 1000));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const patch = async (body: Record<string, unknown>) => {
     let creatorToken: string | undefined;
@@ -207,7 +216,8 @@ export function DareView({ initialId }: { initialId: string }) {
             <div className="flex flex-wrap gap-2 text-[11px] font-bold">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-2 py-1 tabular-nums">
                 <Hourglass {...iconXs} />
-                Self-destructs in {ttlLabel(dare.expires_at)}
+                Self-destructs in{" "}
+                {nowSec > 0 ? formatTtl(dare.expires_at, nowSec) : "--:--"}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FFD600] bg-[#FFD600] px-2 py-1 font-black tabular-nums text-[#111]">
                 <AlertTriangle {...iconXs} />

@@ -69,10 +69,20 @@ export function DareRoulette({
   onTick: () => void;
   onPop: () => void;
 }) {
-  const initial = useMemo(() => randomReels(), []);
-  const [reels, setReels] = useState<ReelState>(initial);
+  // Deterministic placeholders — Math.random() only after mount (never during prerender)
+  const seed = useMemo(
+    () =>
+      ({
+        SETTING: SLOT_REELS.SETTING[0]!,
+        ENERGY: SLOT_REELS.ENERGY[0]!,
+        TWIST: SLOT_REELS.TWIST[0]!,
+        FOCUS: SLOT_REELS.FOCUS[0]!,
+      }) satisfies ReelState,
+    []
+  );
+  const [reels, setReels] = useState<ReelState>(seed);
   const [offsets, setOffsets] = useState<OffsetState>(() =>
-    offsetsFromReels(initial)
+    offsetsFromReels(seed)
   );
   const [locked, setLocked] = useState<LockState>({
     SETTING: false,
@@ -110,6 +120,12 @@ export function DareRoulette({
       rafRef.current = null;
     }
   };
+
+  useEffect(() => {
+    const initial = randomReels();
+    setReels(initial);
+    setOffsets(offsetsFromReels(initial));
+  }, []);
 
   useEffect(() => () => clearTimers(), []);
 

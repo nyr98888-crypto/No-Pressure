@@ -1,10 +1,14 @@
+import { Suspense } from "react";
 import { HomeApp } from "@/components/HomeApp";
 
 /**
- * Render HomeApp immediately — do NOT gate the shell behind Suspense.
- * A stuck Suspense fallback ("Loading No Pressure…") is what users saw when
- * hydration was blocked; the client UI must mount on first paint.
+ * Suspense boundary required by Next.js cacheComponents when the client tree
+ * reads time (today key). Fallback is empty so we never stick on a loading screen.
  */
 export default function HomePage() {
-  return <HomeApp />;
+  return (
+    <Suspense fallback={null}>
+      <HomeApp />
+    </Suspense>
+  );
 }

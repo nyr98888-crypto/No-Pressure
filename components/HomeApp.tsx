@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   Dices,
   Flame,
@@ -10,6 +10,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { io } from "next/cache";
 import { useJuice } from "@/hooks/useJuice";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useReduceMotion } from "@/hooks/useReduceMotion";
@@ -31,6 +32,9 @@ import { StatsBar } from "./StatsBar";
 import { VipPassBadge } from "./VipPassBadge";
 
 export function HomeApp() {
+  // Keep new Date() out of the static prerender shell (cacheComponents)
+  use(io());
+
   const [level, setLevel] = useState<HeatLevel>(1);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [squadOpen, setSquadOpen] = useState(false);

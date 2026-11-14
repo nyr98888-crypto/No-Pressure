@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LS } from "@/lib/storageKeys";
+import { LS, OPEN_TERMS_EVENT } from "@/lib/storageKeys";
 
 export function AgeGate() {
   const [open, setOpen] = useState(false);
+  const [reviewOnly, setReviewOnly] = useState(false);
 
   useEffect(() => {
     const ok = localStorage.getItem(LS.ageGate) === "1";
     setOpen(!ok);
+    setReviewOnly(false);
+
+    const onOpen = () => {
+      setReviewOnly(true);
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_TERMS_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_TERMS_EVENT, onOpen);
   }, []);
 
   if (!open) return null;
@@ -51,11 +60,18 @@ export function AgeGate() {
           onClick={() => {
             localStorage.setItem(LS.ageGate, "1");
             setOpen(false);
+            setReviewOnly(false);
           }}
         >
-          I Agree — Enter at My Own Risk
+          {reviewOnly ? "Got It — Close" : "I Agree — Enter at My Own Risk"}
         </button>
       </div>
     </div>
   );
+}
+
+export function openTermsModal() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(OPEN_TERMS_EVENT));
+  }
 }

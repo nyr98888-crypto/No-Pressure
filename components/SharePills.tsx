@@ -96,7 +96,7 @@ const NETWORKS: Network[] = [
   },
   {
     id: "x",
-    label: "X",
+    label: "",
     color: "from-[#111] to-[#000]",
     href: (u, t) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${t} ${u}`)}`,
@@ -148,6 +148,7 @@ export function SharePills({
             href={n.href(url, caption)}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={n.id === "x" ? "Share on X" : n.label}
             className={`pill-3d bg-gradient-to-b ${n.color} px-3 py-2 text-[11px] ${n.text ?? "text-white"}`}
             onClick={async (e) => {
               try {
@@ -162,7 +163,7 @@ export function SharePills({
             }}
           >
             {n.icon}
-            {n.label}
+            {n.label ? <span>{n.label}</span> : null}
           </a>
         ))}
         <button

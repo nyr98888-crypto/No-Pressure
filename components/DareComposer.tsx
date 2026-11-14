@@ -57,11 +57,13 @@ export function DareComposer({
     const name = sender.trim() || localStorage.getItem(LS.nickname) || "Anon";
     localStorage.setItem(LS.nickname, name);
 
-    if (mode === "text" && !dareText.trim()) {
-      setError("Write a dare first.");
-      return;
-    }
-    if ((mode === "video" || mode === "photo" || mode === "voice") && !media) {
+    const needsMedia = mode === "video" || mode === "photo" || mode === "voice";
+    if (mode === "text") {
+      if (!dareText.trim()) {
+        setError("Write a dare first.");
+        return;
+      }
+    } else if (needsMedia && !media) {
       setError("Capture media first.");
       return;
     }

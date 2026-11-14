@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useJuice } from "@/hooks/useJuice";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
 import { useSquad } from "@/hooks/useSquad";
 import { useTiers } from "@/hooks/useTiers";
 import type { HeatLevel } from "@/lib/types";
+import { openTermsModal } from "./AgeGate";
 import { CustomizeTiersModal } from "./CustomizeTiersModal";
 import { DailyDare } from "./DailyDare";
 import { DareComposer } from "./DareComposer";
@@ -21,6 +23,7 @@ export function HomeApp() {
   const [squadOpen, setSquadOpen] = useState(false);
   const [rouletteText, setRouletteText] = useState<string | undefined>();
   const { juice, soundOn, toggleSound } = useJuice();
+  const { reduceMotion, toggleReduceMotion } = useReduceMotion();
   const { stats, rank, popup, completeDaily } = useLocalStats();
   const { tiers, save, getTier } = useTiers();
   const { squad, addManual, edit, remove, upsert } = useSquad();
@@ -58,6 +61,21 @@ export function HomeApp() {
                 onClick={toggleSound}
               >
                 {soundOn ? "🔊" : "🔇"}
+              </button>
+              <button
+                type="button"
+                aria-label={
+                  reduceMotion ? "Enable motion effects" : "Reduce motion (epilepsy-safe)"
+                }
+                title={reduceMotion ? "Motion off" : "Reduce motion"}
+                className={`pill-3d px-3 py-1.5 text-xs ${
+                  reduceMotion
+                    ? "bg-gradient-to-b from-emerald-400 to-emerald-700 text-white"
+                    : "bg-white/10 text-white"
+                }`}
+                onClick={toggleReduceMotion}
+              >
+                {reduceMotion ? "FX·" : "FX"}
               </button>
               <button
                 type="button"
@@ -117,6 +135,16 @@ export function HomeApp() {
             }}
           />
         </section>
+
+        <footer className="mt-4 border-t border-white/5 pt-4 text-center">
+          <button
+            type="button"
+            className="text-[11px] text-[#9aa3b8] underline decoration-white/20 underline-offset-4 transition hover:text-white"
+            onClick={openTermsModal}
+          >
+            Terms of Service & 18+ Assumption of Risk
+          </button>
+        </footer>
       </main>
 
       <CustomizeTiersModal

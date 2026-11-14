@@ -1,45 +1,51 @@
 import type { HeatLevel } from "./types";
 
+/** Safe, public-friendly Scenario Sparks — users invent their own harmless dare around the scene. */
 export const DARES_BY_LEVEL: Record<HeatLevel, string[]> = {
   1: [
-    "Do your best impression of the person who sent this.",
-    "Say the alphabet backwards on camera — no cuts.",
-    "Show your most embarrassing camera roll photo (safe for work).",
-    "Talk in a cartoon voice for your next 3 messages.",
-    "Take a mirror selfie with your silliest face.",
-    "Tell a joke so bad the squad groans.",
+    "Scenario Spark: Ordering at a coffee shop counter",
+    "Scenario Spark: Waiting for the microwave to beep",
+    "Scenario Spark: Picking a movie on the couch",
+    "Scenario Spark: Sending a 10s voice note to the group chat",
+    "Scenario Spark: Taking a mirror selfie with a silly filter",
+    "Scenario Spark: Introducing yourself to a houseplant",
+    "Scenario Spark: Reading a cereal box like a news anchor",
   ],
   2: [
-    "Walk into the next room and declare you are the main character.",
-    "Send a dramatic Oscar-acceptance speech about nothing.",
-    "Order something with a fake fancy accent.",
-    "Wear your clothes inside-out for the next hour.",
-    "Text your last contact a random emoji rant (then explain).",
-    "Do 10 dramatic push-ups and narrate them like a sports announcer.",
+    "Scenario Spark: Riding an elevator with strangers",
+    "Scenario Spark: Walking into a room like the main character",
+    "Scenario Spark: Ordering food with a fancy accent",
+    "Scenario Spark: Leaving a voicemail in character",
+    "Scenario Spark: Complimenting a friend’s outfit like a sitcom",
+    "Scenario Spark: Acting like a sports commentator in your kitchen",
+    "Scenario Spark: Explaining your snack choice at a press conference",
   ],
   3: [
-    "Ask a stranger (politely) to rate your outfit 1–10 on camera.",
-    "Sing a chorus in public volume — commit.",
-    "Post a story calling yourself the squad villain for 24h.",
-    "Eat a weird food combo of the sender's choosing.",
-    "Do a TikTok dance badly and own it.",
-    "Call someone and speak only in movie quotes for 30 seconds.",
+    "Scenario Spark: Asking for the Wi‑Fi password like a heist movie",
+    "Scenario Spark: Narrating your grocery run as a nature documentary",
+    "Scenario Spark: Doing a 15s weather report from your balcony",
+    "Scenario Spark: Hosting a tiny award show for your pet or plant",
+    "Scenario Spark: Teaching an imaginary cooking class for 20s",
+    "Scenario Spark: Giving a museum tour of your living room",
+    "Scenario Spark: Starting a polite slow clap in a hallway (max 10s)",
   ],
   4: [
-    "Wear something ridiculous outside and take a walking video.",
-    "Introduce yourself to someone new with a fake legendary backstory.",
-    "Perform a 20-second freestyle rap about the sender.",
-    "Sit on the floor in a public place and stretch like it's yoga class.",
-    "Record yourself asking for the Wi-Fi like you're in a heist movie.",
-    "Do your most unhinged hype-man entrance into a room.",
+    "Scenario Spark: Doing a dramatic runway walk down a hallway",
+    "Scenario Spark: Pitching a fake startup idea to the squad",
+    "Scenario Spark: Reenacting a movie trailer for your day so far",
+    "Scenario Spark: Asking for directions to a place you’re already at",
+    "Scenario Spark: Holding a mock job interview with a friend",
+    "Scenario Spark: Performing a 20s freestyle about today’s lunch",
+    "Scenario Spark: Opening a pretend podcast episode about nothing",
   ],
   5: [
-    "Full send: whatever the squad majority picks in the next 60 seconds.",
-    "Make a 15-second trailer where you are the final boss.",
-    "Confess your most mid hot take on camera — stand on business.",
-    "Challenge the next person you see to a silly 1-round contest.",
-    "Film a fake apology video for a crime you definitely did not commit.",
-    "Go Full Inferno: redo Levels 1–3 in one continuous take.",
+    "Scenario Spark: Hosting a 20s press conference about a snack",
+    "Scenario Spark: Crowning yourself squad legend (and defending it)",
+    "Scenario Spark: Making a 15s trailer where you’re the final boss",
+    "Scenario Spark: Debating a mid hot take with full seriousness",
+    "Scenario Spark: Directing a one-take comedy scene in your kitchen",
+    "Scenario Spark: Running a mock talent show round for the squad",
+    "Scenario Spark: Closing the night with an Oscar speech about friendship",
   ],
 };
 
@@ -49,22 +55,8 @@ export const ROULETTE_POOL: { level: HeatLevel; text: string }[] = (
   texts.map((text) => ({ level: Number(level) as HeatLevel, text }))
 );
 
-// Extra spice so roulette feels packed (30+)
-export const EXTRA_ROULETTE = [
-  { level: 1 as HeatLevel, text: "Balance a spoon on your nose for 10 seconds." },
-  { level: 1 as HeatLevel, text: "Say 'no pressure' in 5 different accents." },
-  { level: 2 as HeatLevel, text: "Compliment the next person you see like a sitcom character." },
-  { level: 2 as HeatLevel, text: "Reenact your last awkward moment in mime." },
-  { level: 3 as HeatLevel, text: "Start a slow clap alone until someone joins (max 20s)." },
-  { level: 3 as HeatLevel, text: "Narrate your life like a nature documentary for 30s." },
-  { level: 4 as HeatLevel, text: "Ask for directions to a place you already are." },
-  { level: 4 as HeatLevel, text: "Do a dramatic runway walk across a hallway." },
-  { level: 5 as HeatLevel, text: "Host a 20-second press conference about your snack choice." },
-  { level: 5 as HeatLevel, text: "Crown yourself squad legend and defend the title out loud." },
-];
-
 export function rouletteDares(level: HeatLevel) {
-  return [...ROULETTE_POOL, ...EXTRA_ROULETTE].filter((d) => d.level === level);
+  return ROULETTE_POOL.filter((d) => d.level === level);
 }
 
 export function dailyDareForDate(date = new Date()): {
@@ -75,9 +67,8 @@ export function dailyDareForDate(date = new Date()): {
   const key = date.toISOString().slice(0, 10);
   const dayIndex =
     Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000) %
-    (ROULETTE_POOL.length + EXTRA_ROULETTE.length);
-  const pool = [...ROULETTE_POOL, ...EXTRA_ROULETTE];
-  const pick = pool[dayIndex] ?? pool[0];
+    ROULETTE_POOL.length;
+  const pick = ROULETTE_POOL[dayIndex] ?? ROULETTE_POOL[0];
   return { key, text: pick.text, level: pick.level };
 }
 

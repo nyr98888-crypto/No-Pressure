@@ -459,6 +459,51 @@ body {
   animation: floatPop 900ms ease-out forwards;
 }
 
+/* ——— Reduced motion / epilepsy-safe ——— */
+.reduce-motion .screen-shake,
+.reduce-motion .animate-impact-slam,
+.reduce-motion .animate-ember-burst::after,
+.reduce-motion .shockwave-ring,
+.reduce-motion .heat-5,
+.reduce-motion .hazard-pulse {
+  animation: none !important;
+}
+
+.reduce-motion .heat-1,
+.reduce-motion .heat-2,
+.reduce-motion .heat-3,
+.reduce-motion .heat-4,
+.reduce-motion .heat-5 {
+  animation: none !important;
+  /* Keep static colored borders + glow; kill tremor/strobe/scan motion */
+  transform: none !important;
+  filter: none !important;
+}
+
+.reduce-motion .ember-layer {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.reduce-motion-off) .screen-shake,
+  html:not(.reduce-motion-off) .animate-impact-slam,
+  html:not(.reduce-motion-off) .animate-ember-burst::after,
+  html:not(.reduce-motion-off) .shockwave-ring,
+  html:not(.reduce-motion-off) .hazard-pulse,
+  html:not(.reduce-motion-off) .heat-1,
+  html:not(.reduce-motion-off) .heat-2,
+  html:not(.reduce-motion-off) .heat-3,
+  html:not(.reduce-motion-off) .heat-4,
+  html:not(.reduce-motion-off) .heat-5 {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  html:not(.reduce-motion-off) .ember-layer {
+    display: none !important;
+  }
+}
+
 @keyframes floatPop {
   0% {
     transform: translateY(0) scale(0.8);

@@ -74,16 +74,15 @@ export function useSquad() {
     [upsert]
   );
 
-  const edit = useCallback(
-    (id: string, nickname: string) => {
-      setSquad((prev) => {
-        const next = prev.map((m) => (m.id === id ? { ...m, nickname } : m));
-        localStorage.setItem(LS.squad, JSON.stringify(next));
-        return next;
-      });
-    },
-    []
-  );
+  const edit = useCallback((id: string, nickname: string) => {
+    const name = nickname.trim();
+    if (!name) return;
+    setSquad((prev) => {
+      const next = prev.map((m) => (m.id === id ? { ...m, nickname: name } : m));
+      localStorage.setItem(LS.squad, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const remove = useCallback((id: string) => {
     setSquad((prev) => {

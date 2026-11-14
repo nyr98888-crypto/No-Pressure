@@ -77,7 +77,7 @@ export function DareRoulette({
     <div className="glass-panel rounded-2xl p-4">
       <div className="flex items-center justify-between">
         <p className="font-[family-name:var(--font-display)] text-lg font-black">
-          🎰 Dare Roulette
+          🎰 Scenario Spark
         </p>
         <span className="text-[10px] font-bold tracking-widest text-[#9aa3b8]">
           LVL {level}

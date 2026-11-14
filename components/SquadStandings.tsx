@@ -23,6 +23,8 @@ export function SquadStandings({
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
   const sorted = [...squad].sort(
     (a, b) => b.certified - a.certified || b.maxHeat - a.maxHeat
   );
@@ -30,6 +32,13 @@ export function SquadStandings({
   if (!open) return null;
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "";
+
+  const commitEdit = (id: string) => {
+    const trimmed = editDraft.trim();
+    if (trimmed) onEdit(id, trimmed);
+    setEditingId(null);
+    setEditDraft("");
+  };
 
   return (
     <div className="modal-backdrop fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
@@ -102,7 +111,9 @@ export function SquadStandings({
             type="button"
             className="pill-3d bg-gradient-to-b from-rose-500 to-rose-700 px-4 py-2 text-xs text-white"
             onClick={() => {
-              onAdd(name);
+              const trimmed = name.trim();
+              if (!trimmed) return;
+              onAdd(trimmed);
               setName("");
             }}
           >
@@ -113,15 +124,53 @@ export function SquadStandings({
         <ul className="mt-3 space-y-2">
           {sorted.map((m) => (
             <li key={m.id} className="flex items-center gap-2 text-sm">
-              <input
-                className="flex-1 rounded-lg border border-white/10 bg-black/20 px-2 py-1"
-                value={m.nickname}
-                onChange={(e) => onEdit(m.id, e.target.value)}
-              />
+              {editingId === m.id ? (
+                <input
+                  className="flex-1 rounded-lg border border-white/10 bg-black/20 px-2 py-1"
+                  value={editDraft}
+                  autoFocus
+                  onChange={(e) => setEditDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") commitEdit(m.id);
+                    if (e.key === "Escape") {
+                      setEditingId(null);
+                      setEditDraft("");
+                    }
+                  }}
+                />
+              ) : (
+                <span className="flex-1 truncate px-1 font-semibold">{m.nickname}</span>
+              )}
+              {editingId === m.id ? (
+                <button
+                  type="button"
+                  className="pill-3d bg-emerald-600/80 px-2.5 py-1 text-[10px] text-white"
+                  onClick={() => commitEdit(m.id)}
+                >
+                  Save
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="pill-3d bg-white/10 px-2.5 py-1 text-[10px] text-white"
+                  onClick={() => {
+                    setEditingId(m.id);
+                    setEditDraft(m.nickname);
+                  }}
+                >
+                  Edit
+                </button>
+              )}
               <button
                 type="button"
-                className="text-xs text-rose-300"
-                onClick={() => onRemove(m.id)}
+                className="pill-3d bg-rose-700/80 px-2.5 py-1 text-[10px] text-white"
+                onClick={() => {
+                  if (editingId === m.id) {
+                    setEditingId(null);
+                    setEditDraft("");
+                  }
+                  onRemove(m.id);
+                }}
               >
                 Remove
               </button>

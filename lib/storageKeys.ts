@@ -5,4 +5,7 @@ export const LS = {
   squad: "np_squad_v1",
   sound: "np_sound_on_v1",
   nickname: "np_nickname_v1",
+  reduceMotion: "np_reduce_motion_v1",
 } as const;
+
+export const OPEN_TERMS_EVENT = "np:open-terms";
